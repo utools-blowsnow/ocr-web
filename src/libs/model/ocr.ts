@@ -3,15 +3,16 @@ import RecModel from "@/libs/model/recModel";
 import {InferenceSession, Tensor} from "onnxruntime-web";
 import {imageDataToTensor, imageHtmlToData, previewImg} from "@/utils/imageHelper";
 import {data2canvas, resizeNormImg, toPaddleInput} from "@/libs/model/modelUtils.ts";
-import {ModelOptions, OcrModel} from "@/libs/models/type.ts";
+import {ModelOptions, OcrModelOptions} from "@/libs/models/type.ts";
 
 class Ocr{
     private det: DetModel;
     private rec: RecModel;
+    private ocrModelOptions: OcrModelOptions
 
-    constructor(ocrOptions: OcrModel) {
+    constructor(ocrOptions: OcrModelOptions) {
+        this.ocrModelOptions = ocrOptions
         this.det = new DetModel(ocrOptions.detModel.modelPath)
-
         this.rec = new RecModel(ocrOptions.recModel.modelPath, ocrOptions.charesPath)
     }
 

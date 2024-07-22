@@ -12,6 +12,7 @@ import cv from "@techstark/opencv-js";
 
 export default class DetModel{
     private modelPath: string;
+    private modelBuffer: Uint8Array;
     private session: InferenceSession;
     private limitSideLen = 960
     private detShape = [960, 960];
@@ -20,6 +21,10 @@ export default class DetModel{
         this.modelPath = modelPath;
     }
     async init(){
+        if (this.modelBuffer) {
+            this.session = await InferenceSession.create(this.modelBuffer);
+            return;
+        }
         this.session = await InferenceSession.create(this.modelPath);
     }
 

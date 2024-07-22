@@ -1,6 +1,7 @@
-import {OcrModel} from "@/libs/models/type.ts";
+import {OcrModelOptions} from "@/libs/models/type.ts";
 
 export default {
+    name: "PP-OCRv4",
     detModel: {
         modelPath: "https://cdn.jsdelivr.net/gh/utools-blowsnow/ocr-web@models/ch_PP-OCRv4_det_infer.onnx"
     },
@@ -9,4 +10,4 @@ export default {
     },
     charesPath: "https://cdn.jsdelivr.net/gh/utools-blowsnow/ocr-web@models/ppocr_keys_v1.txt"
 
-} as OcrModel
+} as OcrModelOptions

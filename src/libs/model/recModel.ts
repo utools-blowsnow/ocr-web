@@ -24,7 +24,7 @@ export default  class RecModel{
             })
             .then(txt => txt.split("\n"));
 
-        console.log('chares', this.chares);
+        // console.log('chares', this.chares);
     }
 
 
@@ -35,7 +35,7 @@ export default  class RecModel{
         const line = []
         let ml = data.dims[0] - 1
 
-        console.log(data.data.length, predLen * data.dims[1]);
+        // console.log(data.data.length, predLen * data.dims[1]);
         for (let l = 0; l < data.data.length; l += predLen * data.dims[1]) {
             const predsIdx = []
             const predsProb = []
