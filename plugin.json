@@ -1,0 +1,26 @@
+{
+  "logo": "logo.png",
+  "main": "index.html",
+  "preload": "preload.js",
+  "name": "AI画画",
+  "version": "1.0.0",
+  "pluginName": "aidraw",
+  "description": "AI画画",
+  "development": {
+    "main": "http://127.0.0.1:9000/index.html"
+  },
+  "author": "blowsnow",
+  "homepage": "https://github.com/utools-blowsnow/devtunnel",
+  "features": [
+    {
+      "code": "open",
+      "explain": "AI画画",
+      "cmds": [
+        "AI画画",
+        "画画",
+        "draw",
+        "ai"
+      ]
+    }
+  ]
+}
