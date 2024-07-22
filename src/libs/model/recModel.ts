@@ -14,9 +14,12 @@ export default  class RecModel{
         this.charesPath = charesPath
     }
 
-    async init(){
-        this.session = await InferenceSession.create(this.modelPath);
-
+    async init(buffer?:Uint8Array, options?: InferenceSession.SessionOptions){
+        if (buffer) {
+            this.session = await InferenceSession.create(buffer, options);
+        }else{
+            this.session = await InferenceSession.create(this.modelPath, options);
+        }
         this.chares = await fetch(this.charesPath)
             .then(async res => {
                 const buffer = await res.arrayBuffer()

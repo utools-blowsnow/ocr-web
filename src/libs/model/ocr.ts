@@ -6,24 +6,38 @@ import {data2canvas, resizeNormImg, toPaddleInput} from "@/libs/model/modelUtils
 import {ModelOptions, OcrModelOptions} from "@/libs/models/type.ts";
 
 class Ocr{
+    private ocrModelOptions: OcrModelOptions
     private det: DetModel;
     private rec: RecModel;
-    private ocrModelOptions: OcrModelOptions
 
     constructor(ocrOptions: OcrModelOptions) {
         this.ocrModelOptions = ocrOptions
-        this.det = new DetModel(ocrOptions.detModel.modelPath)
-        this.rec = new RecModel(ocrOptions.recModel.modelPath, ocrOptions.charesPath)
     }
 
-    async init() {
-        await this.det.init()
-        await this.rec.init()
+    async init(options?: InferenceSession.SessionOptions) {
+        this.det = new DetModel(this.ocrModelOptions.detModel.modelPath)
+        this.rec = new RecModel(this.ocrModelOptions.recModel.modelPath, this.ocrModelOptions.charesPath)
+        if (window['utools']){
+            let detBuffer: ArrayBuffer | Buffer = window.mutils.readModelFile(this.ocrModelOptions.name + '_det.onnx')
+            if (!detBuffer){
+                detBuffer = await fetch(this.ocrModelOptions.detModel.modelPath).then(res => res.arrayBuffer());
+                window.mutils.writeModelFile(this.ocrModelOptions.name + '_det.onnx', new Uint8Array(detBuffer))
+            }
+            let recBuffer: ArrayBuffer | Buffer = window.mutils.readModelFile(this.ocrModelOptions.name + '_rec.onnx')
+            if (!recBuffer){
+                recBuffer = await fetch(this.ocrModelOptions.recModel.modelPath).then(res => res.arrayBuffer());
+                window.mutils.writeModelFile(this.ocrModelOptions.name + '_rec.onnx', new Uint8Array(recBuffer))
+            }
+            await this.det.init(new Uint8Array(detBuffer), options)
+            await this.rec.init(new Uint8Array(recBuffer), options)
+        }else{
+            await this.det.init(null, options)
+            await this.rec.init(null, options)
+        }
     }
 
     async detect(img: HTMLImageElement, options?: InferenceSession.RunOptions) {
         const detResult = await this.det.predict(img, options);
-
         console.log('detResult', detResult);
         const promises = []
         for (let result of detResult.box) {
@@ -44,14 +58,14 @@ class Ocr{
     }
 
 
-    buildDetCanvas(img: HTMLImageElement, detResult): HTMLCanvasElement{
+    buildDetImage(img: HTMLImageElement, recResult) :string{
         const imgData = imageHtmlToData(img);
         let canvas = data2canvas(imgData);
         let ctx = canvas.getContext("2d")
 
         // 偏差值
         let mean = 0;
-        for (let result of detResult.box) {
+        for (const result of recResult) {
             ctx.beginPath();
             ctx.lineWidth = 2;
             ctx.strokeStyle = "red";
@@ -63,7 +77,18 @@ class Ocr{
             ctx.lineTo(result.box[0][0] - mean, result.box[0][1] + mean);
             ctx.stroke();
         }
-        return canvas;
+
+        let toCanvas = document.createElement("canvas")
+        toCanvas.width = img.width
+        toCanvas.height = img.height
+        console.log('canvas', toCanvas.width, toCanvas.height)
+        let newCtx = toCanvas.getContext("2d")
+        newCtx.clearRect(0, 0, toCanvas.width, toCanvas.height)
+        newCtx.drawImage(canvas, 0, 0)
+
+        // 获取base64
+        let base64 = toCanvas.toDataURL("image/png")
+        return base64
     }
 
     previewRecAndDet(img: HTMLImageElement, recResult){
@@ -94,6 +119,8 @@ class Ocr{
 
         document.body.appendChild(canvas);
     }
+
+
 }
 
 export default Ocr
