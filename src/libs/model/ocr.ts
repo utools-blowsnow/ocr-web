@@ -40,10 +40,11 @@ class Ocr{
         const detResult = await this.det.predict(img, options);
         console.log('detResult', detResult);
         const promises = []
+        let recResult = []
         for (let result of detResult.box) {
             // previewImg(result.img.data, result.img.width, result.img.height)
             let tensorData = await imageDataToTensor(result.img, 320, 48)
-            promises.push(this.rec.predictTensor(tensorData).then(texts => {
+            recResult.push(await this.rec.predictTensor(tensorData).then(texts => {
                 return {
                     text: texts,
                     box: result.box,
@@ -51,7 +52,7 @@ class Ocr{
                 }
             }))
         }
-        let recResult = await Promise.all(promises)
+        // recResult = await Promise.all(promises)
         recResult = recResult.reverse()
 
         return recResult;
